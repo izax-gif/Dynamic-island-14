@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050507">
+<title>Dynamic Island 14</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #292940, #050507 65%);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  text-align: center;
+}
+
+header {
+  padding: 25px;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.island {
+  background: black;
+  border: 1px solid #333;
+  width: 125px;
+  height: 36px;
+  border-radius: 40px;
+  margin: 15px auto 40px;
+  transition: all .4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 5px 30px #000;
+}
+
+.island.expanded {
+  width: min(350px, 90vw);
+  height: 140px;
+  border-radius: 30px;
+}
+
+.island-content {
+  width: 100%;
+  padding: 12px;
+}
+
+.wave {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.wave span {
+  width: 4px;
+  height: 8px;
+  background: #a7f36b;
+  border-radius: 5px;
+  animation: wave .7s infinite alternate;
+}
+
+.wave span:nth-child(2) {animation-delay:.2s}
+.wave span:nth-child(3) {animation-delay:.4s}
+.wave span:nth-child(4) {animation-delay:.6s}
+
+@keyframes wave {
+  to {height:18px}
+}
+
+h1 {
+  font-size: 30px;
+  margin-top: 25px;
+}
+
+p {
+  color: #aaa;
+}
+
+.panel {
+  background: #19191f;
+  border: 1px solid #303039;
+  border-radius: 22px;
+  padding: 20px;
+  margin: 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  background: #292932;
+  border: 1px solid #41414c;
+  color: white;
+  border-radius: 16px;
+  padding: 17px 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(.96);
+}
+
+button span {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.details {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 7px;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.album {
+  background: linear-gradient(135deg, #ff9c78, #713dff);
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+}
+
+.track-info {
+  flex: 1;
+}
+
+.track-info strong {
+  display: block;
+}
+
+.track-info small {
+  color: #aaa;
+}
+
+.timer {
+  font-size: 35px;
+  font-weight: bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>◉ Dynamic Island 14</header>
+
+<div class="island" id="island" onclick="expandIsland()">
+  <div class="island-content" id="content">
+    <div class="wave">
+      <span></span><span></span>
+      <span></span><span></span>
+    </div>
+  </div>
+</div>
+
+<h1>Your Island. Your iPhone.</h1>
+<p>Experience Dynamic Island on iPhone 14.</p>
+
+<div class="panel">
+  <h3>Dynamic Island features</h3>
+
+  <div class="grid">
+
+    <button onclick="music()">
+      <span>♫</span>
+      Music Player
+      <div class="details">Now playing</div>
+    </button>
+
+    <button onclick="startTimer()">
+      <span>⏱</span>
+      Timer
+      <div class="details">Countdown</div>
+    </button>
+
+    <button onclick="notification()">
+      <span>🔔</span>
+      Notifications
+      <div class="details">Message preview</div>
+    </button>
+
+    <button onclick="incomingCall()">
+      <span>☎️</span>
+      Incoming Call
+      <div class="details">Call animation</div>
+    </button>
+
+    <button onclick="charging()">
+      <span>⚡</span>
+      Charging
+      <div class="details">Battery animation</div>
+    </button>
+
+    <button onclick="resetIsland()">
+      <span>↘</span>
+      Reset
+      <div class="details">Close Island</div>
+    </button>
+
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Battery preview</h3>
+  <h2 id="battery">78%</h2>
+  <input type="range" min="1" max="100" value="78"
+  oninput="document.getElementById('battery').innerText=this.value+'%'">
+  <p>Demo battery percentage</p>
+</div>
+
+<script>
+
+const island = document.getElementById("island");
+const content = document.getElementById("content");
+
+let expanded = false;
+let timerInterval;
+
+function expandIsland() {
+  expanded = !expanded;
+  island.classList.toggle("expanded", expanded);
+}
+
+function openIsland(html) {
+  expanded = true;
+  island.classList.add("expanded");
+  content.innerHTML = html;
+}
+
+function resetIsland() {
+  clearInterval(timerInterval);
+  expanded = false;
+  island.classList.remove("expanded");
+
+  content.innerHTML = `
+    <div class="wave">
+      <span></span><span></span>
+      <span></span><span></span>
+    </div>`;
+}
+
+function music() {
+  openIsland(`
+    <div style="text-align:left">
+      <small>NOW PLAYING</small>
+      <div class="track">
+        <div class="album">♫</div>
+        <div class="track-info">
+          <strong>Midnight Drive</strong>
+          <small>Dynamic Sounds</small>
+        </div>
+        <button onclick="toggleMusic(event)" id="play">Ⅱ</button>
+      </div>
+    </div>
+  `);
+}
+
+let playing = true;
+
+function toggleMusic(event) {
+  event.stopPropagation();
+  playing = !playing;
+  document.getElementById("play").innerText =
+    playing ? "Ⅱ" : "▶";
+}
+
+function startTimer() {
+  let seconds = 60;
+  clearInterval(timerInterval);
+
+  function update() {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+
+    openIsland(`
+      <div style="text-align:left">
+        <small>TIMER</small>
+        <div class="track">
+          <div style="flex:1">
+            <div class="timer">
+              ${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}
+            </div>
+            <small>${seconds === 0 ? "Finished" : "Time remaining"}</small>
+          </div>
+          <button onclick="resetIsland()">Done</button>
+        </div>
+      </div>
+    `);
+  }
+
+  update();
+
+  timerInterval = setInterval(() => {
+    seconds--;
+    update();
+
+    if (seconds <= 0) {
+      clearInterval(timerInterval);
+      alert("Timer finished!");
+    }
+  }, 1000);
+}
+
+function notification() {
+  openIsland(`
+    <div class="track">
+      <div style="font-size:28px">✉️</div>
+      <div class="track-info">
+        <strong>New message</strong>
+        <small>Hey! Are you free later?</small>
+      </div>
+    </div>
+  `);
+}
+
+function incomingCall() {
+  openIsland(`
+    <small>INCOMING CALL</small>
+    <div class="track" style="margin-top:15px">
+      <div style="font-size:28px">👤</div>
+      <div class="track-info">
+        <strong>Alex</strong>
+        <small>Mobile · Demo call</small>
+      </div>
+      <button onclick="resetIsland()">✕</button>
+      <button onclick="resetIsland()">☎</button>
+    </div>
+  `);
+}
+
+function charging() {
+  openIsland(`
+    <div class="track" style="margin-top:20px">
+      <div style="font-size:32px;color:#a7f36b">⚡</div>
+      <div class="track-info">
+        <strong>iPhone is charging</strong>
+        <small>Battery charging</small>
+      </div>
+      <strong style="color:#a7f36b">78%</strong>
+    </div>
+  `);
+}
+
+</script>
+
+</body>
+</html>
